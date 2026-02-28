@@ -1,193 +1,250 @@
-# OmniMessage Gateway
+# OmniMessage Gateway v3.0
 
-[![CI](https://github.com/platoba/OmniMessage-Gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/platoba/OmniMessage-Gateway/actions/workflows/ci.yml)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+**统一多渠道消息网关 — One API, All Platforms**
+
+[![CI](https://github.com/platoba/OmniMessage-Gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/platoba/OmniMessage-Gateway/actions)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-🔗 **Unified multi-channel messaging gateway — One API, All Platforms.**
+Send messages across Telegram, WhatsApp, Discord, Slack, Email, and Webhooks through a single unified API.
 
-Send messages to Telegram, WhatsApp, Discord, Slack, Email, and custom webhooks through a single REST API. Features rule-based routing, retry with exponential backoff, dead letter queue, Jinja2 templates, and middleware pipeline.
+## ✨ Features
 
-## Features
+### Core
+- 📡 **6 Channel Support**: Telegram Bot API, WhatsApp Cloud API, Discord Webhooks, Slack Webhooks, SMTP Email, Generic Webhooks
+- 🔀 **Routing Engine**: Rule-based routing with priority matching, middleware chain, and message transformation
+- 📝 **Template Engine**: Jinja2-based templates (file & memory), runtime registration
+- 💀 **Dead Letter Queue**: Failed messages auto-retry with exponential backoff, inspect & retry from DLQ
+- 🌐 **REST API**: FastAPI-powered HTTP API with OpenAPI docs
 
-| Feature | Description |
-|---------|-------------|
-| 📱 **6 Channels** | Telegram, WhatsApp, Discord, Slack, Email, Webhook |
-| 🔀 **Smart Routing** | Rule-based routing with priority and transforms |
-| 🔄 **Auto Retry** | Exponential backoff retry mechanism |
-| 💀 **Dead Letter Queue** | Failed messages stored for inspection/retry |
-| 📝 **Templates** | Jinja2 templates (file + memory) |
-| 🔌 **Middleware** | Pre-processing pipeline for message transforms |
-| 📊 **Stats** | Real-time send/error/DLQ statistics |
-| 🔐 **Auth** | API key authentication |
-| 🐳 **Docker** | Docker Compose with Redis |
+### v3.0 New
+- 💾 **SQLite Message Store**: Persistent message history, delivery tracking, query/search/stats
+- ⏱️ **Rate Limiter**: Per-channel token bucket rate limiting with burst support and cooldown
+- ⏰ **Message Scheduler**: Schedule messages for future delivery (delay/at/recurring)
+- 📊 **Analytics Engine**: Real-time success rates, latency percentiles (P50/P95/P99), error classification, trend analysis
+- 🖥️ **CLI Tool**: Full-featured command-line interface for sending, broadcasting, batch import, stats, templates, scheduling
 
-## Quick Start
+## 🚀 Quick Start
 
+### Install
 ```bash
-git clone https://github.com/platoba/OmniMessage-Gateway.git
-cd OmniMessage-Gateway
-
-# Setup
-cp .env.example .env
-# Edit .env with your channel credentials
-
-# Install & run
-pip install -r requirements.txt
-uvicorn gateway.api:app --host 0.0.0.0 --port 8900 --reload
+pip install -e ".[dev]"
 ```
 
-## API Reference
-
-### Send Message
+### CLI Usage
 ```bash
+# Send a message
+omni send telegram 123456789 "Hello from OmniMessage!"
+
+# Send with template
+omni send telegram 123456789 "" --template welcome --vars '{"name": "John"}'
+
+# Broadcast to multiple channels
+omni broadcast "Big announcement!" \
+  --targets '[{"channel":"telegram","target":"123"},{"channel":"discord","target":"https://..."}]'
+
+# Batch send from CSV/JSON
+omni batch messages.csv --delay 0.5
+omni batch messages.json --dry-run
+
+# Check statistics
+omni stats --hours 24
+omni stats --format json
+
+# Query message history
+omni history --channel telegram --status sent --limit 50
+
+# Schedule messages
+omni schedule add telegram 123456789 "Reminder!" --delay 3600
+omni schedule list
+omni schedule cancel <entry-id>
+
+# Manage templates
+omni templates list
+omni templates add welcome "Hello {{ name }}, welcome!"
+omni templates test welcome --vars '{"name": "World"}'
+```
+
+### API Usage
+```bash
+# Start server
+uvicorn gateway.api:app --host 0.0.0.0 --port 8900
+
+# Send via API
 curl -X POST http://localhost:8900/send \
-  -H "X-API-Key: your-key" \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: your-key" \
   -d '{
     "channel": "telegram",
     "target": "123456789",
-    "text": "Hello from OmniMessage! 🚀"
+    "text": "Hello from API!"
   }'
-```
 
-### Broadcast
-```bash
+# Broadcast
 curl -X POST http://localhost:8900/broadcast \
   -H "X-API-Key: your-key" \
-  -H "Content-Type: application/json" \
   -d '{
+    "text": "Hello everyone!",
     "targets": [
-      {"channel": "telegram", "target": "123456789"},
-      {"channel": "discord", "target": "https://discord.com/api/webhooks/xxx"},
-      {"channel": "slack", "target": "https://hooks.slack.com/xxx"},
-      {"channel": "email", "target": "user@example.com"}
-    ],
-    "text": "Hello everyone! 📢"
+      {"channel": "telegram", "target": "123"},
+      {"channel": "discord", "target": "https://..."}
+    ]
   }'
 ```
 
-### Send with Template
-```bash
-# Register a template
-curl -X POST http://localhost:8900/templates \
-  -H "X-API-Key: your-key" \
-  -d '{"name": "order_confirm", "template": "🛒 Order #{{ order_id }} confirmed! Total: ${{ total }}"}'
+### Python SDK
+```python
+import asyncio
+from gateway.core import Gateway
+from gateway.models import Message, ChannelType
 
-# Send using template
-curl -X POST http://localhost:8900/send \
-  -H "X-API-Key: your-key" \
-  -d '{
-    "channel": "telegram",
-    "target": "123456789",
-    "template": "order_confirm",
-    "template_vars": {"order_id": "ORD-001", "total": "49.99"}
-  }'
+gateway = Gateway()
+
+msg = Message(
+    from_channel=ChannelType.WEBHOOK,
+    to_channel=ChannelType.TELEGRAM,
+    content="Hello!",
+    target="123456789",
+)
+
+result = asyncio.run(gateway.send(msg))
+print(f"Sent: {result.success}")
 ```
 
-### Health Check
-```bash
-curl http://localhost:8900/health
-```
-
-### Dead Letter Queue
-```bash
-# View failed messages
-curl http://localhost:8900/dlq -H "X-API-Key: your-key"
-
-# Retry a dead letter
-curl -X POST http://localhost:8900/dlq/0/retry -H "X-API-Key: your-key"
-
-# Clear DLQ
-curl -X DELETE http://localhost:8900/dlq -H "X-API-Key: your-key"
-```
-
-### Stats
-```bash
-curl http://localhost:8900/stats -H "X-API-Key: your-key"
-```
-
-## Supported Channels
-
-| Channel | Method | Required Config |
-|---------|--------|----------------|
-| 📱 Telegram | Bot API | `TELEGRAM_TOKEN` |
-| 💬 WhatsApp | Meta Cloud API | `WHATSAPP_TOKEN` + `WHATSAPP_PHONE_ID` |
-| 🎮 Discord | Webhook | `DISCORD_WEBHOOK` |
-| 💼 Slack | Incoming Webhook | `SLACK_WEBHOOK` |
-| 📧 Email | SMTP | `SMTP_HOST` + `SMTP_USER` + `SMTP_PASS` |
-| 🔗 Webhook | HTTP POST | Target URL per message |
-
-## Architecture
+## 🏗️ Architecture
 
 ```
 gateway/
-├── __init__.py          # Package + version
-├── api.py               # FastAPI REST endpoints
-├── config.py            # Configuration management (env → dataclass)
-├── core.py              # Gateway engine (channels + routing + templates)
+├── __init__.py          # Package version
+├── core.py              # Gateway core engine
 ├── models.py            # Unified message models
-├── router.py            # Routing engine + retry + DLQ
+├── config.py            # Configuration management
+├── router.py            # Routing engine + DLQ
 ├── templates.py         # Jinja2 template engine
+├── api.py               # FastAPI REST API
+├── store.py             # SQLite message persistence   [NEW]
+├── rate_limiter.py      # Token bucket rate limiter    [NEW]
+├── scheduler.py         # Message scheduler            [NEW]
+├── analytics.py         # Analytics engine             [NEW]
+├── cli.py               # CLI tool                     [NEW]
 └── channels/
     ├── __init__.py      # BaseChannel ABC
     ├── telegram.py      # Telegram Bot API
     ├── whatsapp.py      # WhatsApp Cloud API
-    ├── discord.py       # Discord Webhook
-    ├── slack.py         # Slack Webhook
-    ├── email.py         # SMTP
-    └── webhook.py       # Generic HTTP webhook
+    ├── discord.py       # Discord Webhooks
+    ├── slack.py         # Slack Webhooks
+    ├── email.py         # SMTP Email
+    └── webhook.py       # Generic Webhooks
 ```
 
-## Docker Deployment
+## 📊 Analytics
+
+```python
+from gateway.analytics import AnalyticsCollector, AnalyticsExporter
+
+collector = AnalyticsCollector()
+collector.record_sent("telegram", latency_ms=45.2, target="user1")
+
+# Get stats
+print(collector.get_success_rate())       # 100.0
+print(collector.get_latency_stats())      # {"avg_ms": 45.2, "p50_ms": ...}
+print(collector.get_channel_stats())      # {"telegram": {"sent": 1, ...}}
+print(collector.get_error_breakdown())    # {"timeout": 0, ...}
+
+# Export
+print(AnalyticsExporter.to_report(collector))
+print(AnalyticsExporter.to_csv(collector))
+```
+
+## ⏱️ Rate Limiting
+
+```python
+from gateway.rate_limiter import RateLimiter, BucketConfig
+
+limiter = RateLimiter(custom_limits={
+    "telegram": BucketConfig(capacity=30, refill_rate=1.0, cooldown_ms=35),
+})
+
+if limiter.check("telegram", target="123"):
+    # OK to send
+    pass
+else:
+    wait = limiter.estimated_wait("telegram")
+    print(f"Wait {wait}s")
+```
+
+## 🔧 Configuration
+
+Environment variables:
+```bash
+# Gateway
+OMNI_API_KEY=your-secret-key
+OMNI_HOST=0.0.0.0
+OMNI_PORT=8900
+
+# Telegram
+TELEGRAM_TOKEN=bot123:ABC-DEF
+
+# WhatsApp Cloud API
+WHATSAPP_TOKEN=your-token
+WHATSAPP_PHONE_ID=123456
+
+# Discord
+DISCORD_WEBHOOK=https://discord.com/api/webhooks/...
+
+# Slack
+SLACK_WEBHOOK=https://hooks.slack.com/services/...
+
+# Email
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=you@gmail.com
+SMTP_PASS=app-password
+SMTP_FROM=you@gmail.com
+
+# Webhook
+WEBHOOK_SECRET=hmac-secret
+```
+
+## 🐳 Docker
 
 ```bash
-# Build and run with Redis
-docker compose up -d
-
-# View logs
-docker compose logs -f gateway
-
-# Stop
-docker compose down
+docker-compose up -d
 ```
 
-## Development
+## 🧪 Testing
 
 ```bash
-# Install dev dependencies
-make dev
+# Run all tests
+pytest tests/ -v
 
-# Run tests
-make test
+# With coverage
+pytest tests/ --cov=gateway --cov-report=term-missing
 
-# Run tests with coverage
-make test-cov
-
-# Lint
-make lint
-
-# Run dev server
-make run
+# Specific module
+pytest tests/test_store.py -v
+pytest tests/test_rate_limiter.py -v
 ```
 
-## Testing
+## 📜 Changelog
 
-80+ tests covering:
-- **Models** — Message, SendResult, ChannelType serialization
-- **Config** — Environment variable parsing, defaults
-- **Router** — Routing rules, retry mechanism, DLQ, middleware
-- **Templates** — Memory/file templates, Jinja2 rendering
-- **Channels** — All 6 channel implementations
-- **API** — All REST endpoints, auth, error handling
+### v3.0.0 (2026-02-28)
+- ✨ SQLite message store with delivery tracking
+- ✨ Per-channel token bucket rate limiter
+- ✨ Message scheduler (delay/at/recurring)
+- ✨ Analytics engine (success rates, latency percentiles, error classification, trends)
+- ✨ Full CLI tool (send/broadcast/batch/stats/history/templates/schedule)
+- ✨ CSV/JSON batch import
+- 📈 Test count: 113 → 200+
 
-## License
+### v2.0.0
+- 6-channel support (Telegram, WhatsApp, Discord, Slack, Email, Webhook)
+- Routing engine with rule-based matching
+- Jinja2 template engine
+- Dead letter queue with retry
+- FastAPI REST API
+- Docker Compose
+
+## 📄 License
 
 MIT
-
-## Related Projects
-
-- [MultiAffiliateTGBot](https://github.com/platoba/MultiAffiliateTGBot) — Affiliate marketing bot
-- [AI-Listing-Writer](https://github.com/platoba/AI-Listing-Writer) — AI listing generator
-- [SocialMedia-AutoBot](https://github.com/platoba/SocialMedia-AutoBot) — Social media automation
-- [Shopify-Scout](https://github.com/platoba/Shopify-Scout) — Shopify product scout
