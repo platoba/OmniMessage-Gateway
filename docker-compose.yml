@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  gateway:
+    build: .
+    container_name: omni-gateway
+    restart: unless-stopped
+    ports:
+      - "${OMNI_PORT:-8900}:8900"
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; r = httpx.get('http://localhost:8900/health'); assert r.status_code == 200"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - omni-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: omni-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - omni-net
+
+volumes:
+  redis-data:
+
+networks:
+  omni-net:
+    driver: bridge
