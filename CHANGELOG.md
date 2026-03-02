@@ -1,3 +1,28 @@
+## [3.1.0] - 2026-03-02
+
+### Added
+- **Priority Queue System**: Message prioritization with 5 levels (CRITICAL/HIGH/NORMAL/LOW/BULK)
+  - `PriorityQueueManager`: Heap-based priority queue with async operations
+  - `PriorityQueueWorker`: Multi-worker message processor with automatic retry
+  - Smart queue management: drops lowest priority when full
+  - Per-priority statistics and message filtering
+  - Automatic requeue on failure with configurable max retries
+  - 16 comprehensive tests covering all priority queue features
+- Priority-aware message routing: urgent messages bypass normal queue
+- Queue utilization metrics and health monitoring
+
+### Technical Details
+- Heap-based priority queue using `heapq` for O(log n) operations
+- Async/await throughout with proper locking (`asyncio.Lock`, `asyncio.Condition`)
+- FIFO ordering within same priority level (timestamp-based)
+- Configurable queue size with overflow protection
+- Worker pool pattern for concurrent message processing
+- Graceful shutdown with task cancellation
+
+### Stats
+- +16 tests (412 total)
+- +280 lines of production code
+- +200 lines of test code
 # Changelog
 
 ## [2.0.0] - 2026-02-28

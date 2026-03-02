@@ -248,3 +248,65 @@ pytest tests/test_rate_limiter.py -v
 ## 📄 License
 
 MIT
+
+## Priority Queue System (v3.1+)
+
+Send messages with priority levels to ensure critical messages are delivered first:
+
+```python
+from gateway.priority_queue import Priority, PriorityQueueManager, PriorityQueueWorker
+
+# Create queue manager
+queue = PriorityQueueManager(max_size=10000)
+
+# Enqueue messages with different priorities
+await queue.enqueue(
+    channel="telegram",
+    target="123456789",
+    content="System alert!",
+    priority=Priority.CRITICAL,  # Highest priority
+)
+
+await queue.enqueue(
+    channel="email",
+    target="user@example.com",
+    content="Daily digest",
+    priority=Priority.LOW,  # Lower priority
+)
+
+# Create worker to process queue
+async def send_callback(channel, target, content, metadata):
+    # Your send logic here
+    pass
+
+worker = PriorityQueueWorker(queue, send_callback, worker_count=3)
+await worker.start()
+
+# Get queue statistics
+stats = await queue.get_stats()
+print(f"Queue size: {stats['queue_size']}")
+print(f"By priority: {stats['current_by_priority']}")
+
+# Get worker statistics
+worker_stats = worker.get_stats()
+print(f"Success rate: {worker_stats['success_rate']:.2%}")
+```
+
+### Priority Levels
+
+- `CRITICAL` (0): System alerts, security notifications
+- `HIGH` (1): User-triggered actions, important updates
+- `NORMAL` (2): Regular messages (default)
+- `LOW` (3): Newsletters, digests
+- `BULK` (4): Mass campaigns, batch operations
+
+### Features
+
+- **Automatic Prioritization**: Higher priority messages always processed first
+- **FIFO Within Priority**: Same priority messages processed in order
+- **Smart Overflow**: Drops lowest priority when queue is full
+- **Auto Retry**: Failed messages automatically requeued (configurable max retries)
+- **Multi-Worker**: Concurrent processing with configurable worker count
+- **Statistics**: Real-time queue and worker metrics
+- **Async/Await**: Fully asynchronous with proper locking
+
