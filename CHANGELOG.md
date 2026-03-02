@@ -1,3 +1,29 @@
+## [3.2.0] - 2026-03-03
+
+### Added
+- **Message Deduplication System**: Prevent duplicate message delivery with content-based fingerprinting
+  - `DeduplicationCache`: In-memory LRU cache for fast duplicate checks (O(1) lookup)
+  - `DeduplicationStore`: SQLite-backed persistent deduplication store
+  - `MessageDeduplicator`: Two-tier caching system (L1 memory + L2 disk)
+  - Content-based fingerprinting using SHA-256 (channel + target + content + template)
+  - Configurable TTL window (default 1 hour) with automatic expiration
+  - Background cleanup task for expired entries
+  - Deduplication statistics and monitoring
+  - 19 comprehensive tests covering all deduplication features
+
+### Technical Details
+- Two-tier caching: L1 in-memory LRU (fast, limited) + L2 SQLite (persistent, unlimited)
+- SHA-256 fingerprinting ignores metadata/timestamps for accurate duplicate detection
+- Async/await throughout with proper locking
+- Automatic cache repopulation from store on L1 miss
+- LRU eviction when cache reaches max size
+- Configurable deduplication window (default 3600s)
+
+### Stats
+- +19 tests (431 total)
+- +260 lines of production code
+- +280 lines of test code
+
 ## [3.1.0] - 2026-03-02
 
 ### Added
@@ -23,7 +49,6 @@
 - +16 tests (412 total)
 - +280 lines of production code
 - +200 lines of test code
-# Changelog
 
 ## [2.0.0] - 2026-02-28
 
