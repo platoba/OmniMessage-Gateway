@@ -2,11 +2,11 @@
 统一消息模型 - 所有渠道共用的消息数据结构
 """
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
-import uuid
 
 
 class ChannelType(str, Enum):

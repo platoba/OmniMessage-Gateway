@@ -1,0 +1,6 @@
+[lint]
+ignore = [
+    "E741",  # Ambiguous variable name
+    "N806",  # Variable in function should be lowercase (MockClient is fine)
+    "F841",  # Local variable assigned but never used
+]

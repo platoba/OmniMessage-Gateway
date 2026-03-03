@@ -2,7 +2,6 @@
 Tests for Health Monitor
 """
 
-import time
 from datetime import datetime, timedelta
 
 import pytest
@@ -15,7 +14,6 @@ from gateway.health_monitor import (
     HealthProbe,
     SLATarget,
 )
-
 
 # ── Fixtures ─────────────────────────────────────────────
 

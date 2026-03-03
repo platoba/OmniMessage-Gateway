@@ -5,7 +5,7 @@ Webhook 渠道 - 通用 HTTP 回调
 import hashlib
 import hmac
 import json
-from typing import Any, Optional
+from typing import Optional
 
 import httpx
 

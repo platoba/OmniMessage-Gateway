@@ -2,7 +2,7 @@
 WhatsApp 渠道 - Cloud API (Meta Business)
 """
 
-from typing import Any, Optional
+from typing import Optional
 
 import httpx
 

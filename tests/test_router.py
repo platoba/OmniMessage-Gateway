@@ -2,17 +2,16 @@
 Tests for gateway.router - Routing engine, retry, dead letter queue
 """
 
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
 
 from gateway.models import (
     ChannelType,
     Message,
-    MessagePriority,
-    MessageStatus,
     SendResult,
 )
-from gateway.router import DeadLetterEntry, RoutingEngine, RoutingRule
+from gateway.router import RoutingEngine, RoutingRule
 
 
 def make_message(channel=ChannelType.TELEGRAM, content="test", target="123"):

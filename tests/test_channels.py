@@ -2,16 +2,16 @@
 Tests for gateway.channels - All channel implementations
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from gateway.channels import BaseChannel
-from gateway.channels.telegram import TelegramChannel
-from gateway.channels.whatsapp import WhatsAppChannel
+import pytest
+
 from gateway.channels.discord import DiscordChannel
-from gateway.channels.slack import SlackChannel
 from gateway.channels.email import EmailChannel
+from gateway.channels.slack import SlackChannel
+from gateway.channels.telegram import TelegramChannel
 from gateway.channels.webhook import WebhookChannel
+from gateway.channels.whatsapp import WhatsAppChannel
 from gateway.config import (
     DiscordConfig,
     EmailConfig,
@@ -20,7 +20,7 @@ from gateway.config import (
     WebhookConfig,
     WhatsAppConfig,
 )
-from gateway.models import ChannelType, Message, SendResult
+from gateway.models import ChannelType, Message
 
 
 def make_message(channel, target="test-target", content="Hello"):

@@ -7,16 +7,14 @@ import argparse
 import asyncio
 import csv
 import json
-import os
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from gateway.config import GatewayConfig
 from gateway.core import Gateway
 from gateway.models import ChannelType, Message, MessagePriority
-from gateway.store import MessageStore
 from gateway.scheduler import MessageScheduler
-from gateway.analytics import AnalyticsExporter, AnalyticsCollector
+from gateway.store import MessageStore
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -217,7 +215,7 @@ async def cmd_batch(args, gateway: Gateway, store: MessageStore) -> None:
             else:
                 store.update_status(msg.id, "failed", result.error)
                 failed += 1
-        except Exception as e:
+        except Exception:
             failed += 1
 
         if args.delay > 0 and i < len(records) - 1:

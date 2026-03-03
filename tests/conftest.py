@@ -3,8 +3,8 @@ Shared test fixtures
 """
 
 import os
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 
 # Ensure no real API calls
 os.environ.setdefault("OMNI_API_KEY", "test-api-key")

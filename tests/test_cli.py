@@ -4,9 +4,7 @@ Tests for CLI
 
 import json
 import os
-import pytest
 import tempfile
-from unittest.mock import AsyncMock, patch, MagicMock
 
 from gateway.cli import create_parser, main
 

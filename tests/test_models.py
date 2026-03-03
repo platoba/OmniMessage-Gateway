@@ -2,8 +2,8 @@
 Tests for gateway.models - Message, SendResult, ChannelType, etc.
 """
 
+
 import pytest
-from datetime import datetime
 
 from gateway.models import (
     Attachment,

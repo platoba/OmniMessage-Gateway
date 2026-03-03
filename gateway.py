@@ -4,15 +4,11 @@ OmniMessage Gateway - 统一多渠道消息网关
 统一API接口，一次集成，全渠道触达
 """
 
-import os
-import time
 import json
-import hmac
-import hashlib
+import os
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
 import requests
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import parse_qs, urlparse
-from threading import Thread
 
 # ── 配置 ──────────────────────────────────────────────────
 PORT = int(os.environ.get("PORT", 8900))
@@ -213,14 +209,14 @@ def main():
                  (ch == "email" and SMTP_HOST)]
 
     print(f"\n{'='*50}")
-    print(f"  OmniMessage Gateway v1.0")
+    print("  OmniMessage Gateway v1.0")
     print(f"  Port: {PORT}")
     print(f"  Active channels: {', '.join(active) if active else 'none'}")
     print(f"{'='*50}")
-    print(f"\n  POST /send     — 单发")
-    print(f"  POST /broadcast — 广播")
-    print(f"  GET  /health   — 健康检查")
-    print(f"\n🚀 启动中...\n")
+    print("\n  POST /send     — 单发")
+    print("  POST /broadcast — 广播")
+    print("  GET  /health   — 健康检查")
+    print("\n🚀 启动中...\n")
 
     server = HTTPServer(("0.0.0.0", PORT), Handler)
     try:

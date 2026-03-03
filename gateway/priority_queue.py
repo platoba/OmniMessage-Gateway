@@ -38,7 +38,7 @@ class PriorityMessage:
 
 class PriorityQueueManager:
     """优先级队列管理器"""
-    
+
     def __init__(self, max_size: int = 10000):
         self._queue: List[PriorityMessage] = []
         self._max_size = max_size
@@ -51,7 +51,7 @@ class PriorityQueueManager:
             "by_priority": {p.name: 0 for p in Priority},
         }
         self._size_by_priority = {p: 0 for p in Priority}
-    
+
     async def enqueue(
         self,
         channel: str,
@@ -72,7 +72,7 @@ class PriorityQueueManager:
                 else:
                     self._stats["dropped"] += 1
                     return None
-            
+
             msg = PriorityMessage(
                 priority=priority,
                 timestamp=time.time(),
@@ -82,15 +82,15 @@ class PriorityQueueManager:
                 metadata=metadata or {},
                 max_retries=max_retries,
             )
-            
+
             heapq.heappush(self._queue, msg)
             self._stats["enqueued"] += 1
             self._stats["by_priority"][Priority(priority).name] += 1
             self._size_by_priority[Priority(priority)] += 1
-            
+
             self._not_empty.notify()
             return msg.message_id
-    
+
     async def dequeue(self, timeout: Optional[float] = None) -> Optional[PriorityMessage]:
         """出队消息（阻塞直到有消息或超时）"""
         async with self._not_empty:
@@ -99,12 +99,12 @@ class PriorityQueueManager:
                     await asyncio.wait_for(self._not_empty.wait(), timeout=timeout)
                 except asyncio.TimeoutError:
                     return None
-            
+
             msg = heapq.heappop(self._queue)
             self._stats["dequeued"] += 1
             self._size_by_priority[Priority(msg.priority)] -= 1
             return msg
-    
+
     async def dequeue_nowait(self) -> Optional[PriorityMessage]:
         """非阻塞出队"""
         async with self._lock:
@@ -114,15 +114,15 @@ class PriorityQueueManager:
             self._stats["dequeued"] += 1
             self._size_by_priority[Priority(msg.priority)] -= 1
             return msg
-    
+
     async def requeue(self, msg: PriorityMessage) -> bool:
         """重新入队（用于重试）"""
         if msg.retry_count >= msg.max_retries:
             return False
-        
+
         msg.retry_count += 1
         msg.timestamp = time.time()  # 更新时间戳
-        
+
         async with self._lock:
             if len(self._queue) >= self._max_size:
                 return False
@@ -130,28 +130,28 @@ class PriorityQueueManager:
             self._size_by_priority[Priority(msg.priority)] += 1
             self._not_empty.notify()
             return True
-    
+
     async def peek(self) -> Optional[PriorityMessage]:
         """查看队首消息（不出队）"""
         async with self._lock:
             return self._queue[0] if self._queue else None
-    
+
     async def size(self) -> int:
         """队列大小"""
         async with self._lock:
             return len(self._queue)
-    
+
     async def is_empty(self) -> bool:
         """队列是否为空"""
         async with self._lock:
             return len(self._queue) == 0
-    
+
     async def clear(self):
         """清空队列"""
         async with self._lock:
             self._queue.clear()
             self._size_by_priority = {p: 0 for p in Priority}
-    
+
     async def get_stats(self) -> Dict[str, Any]:
         """获取统计信息"""
         async with self._lock:
@@ -167,7 +167,7 @@ class PriorityQueueManager:
                     p.name: self._size_by_priority[p] for p in Priority
                 },
             }
-    
+
     async def get_messages_by_priority(self, priority: Priority, limit: int = 10) -> List[Dict[str, Any]]:
         """获取指定优先级的消息列表"""
         async with self._lock:
@@ -189,7 +189,7 @@ class PriorityQueueManager:
 
 class PriorityQueueWorker:
     """优先级队列工作器 - 从队列中取消息并发送"""
-    
+
     def __init__(
         self,
         queue_manager: PriorityQueueManager,
@@ -207,18 +207,18 @@ class PriorityQueueWorker:
             "failed": 0,
             "retried": 0,
         }
-    
+
     async def start(self):
         """启动工作器"""
         if self._running:
             return
-        
+
         self._running = True
         self._workers = [
             asyncio.create_task(self._worker(i))
             for i in range(self._worker_count)
         ]
-    
+
     async def stop(self):
         """停止工作器"""
         self._running = False
@@ -226,7 +226,7 @@ class PriorityQueueWorker:
             worker.cancel()
         await asyncio.gather(*self._workers, return_exceptions=True)
         self._workers.clear()
-    
+
     async def _worker(self, worker_id: int):
         """工作器协程"""
         while self._running:
@@ -234,9 +234,9 @@ class PriorityQueueWorker:
                 msg = await self._queue.dequeue(timeout=1.0)
                 if not msg:
                     continue
-                
+
                 self._stats["processed"] += 1
-                
+
                 # 调用发送回调
                 try:
                     await self._send_callback(
@@ -246,18 +246,18 @@ class PriorityQueueWorker:
                         metadata=msg.metadata,
                     )
                     self._stats["succeeded"] += 1
-                except Exception as e:
+                except Exception:
                     # 发送失败，尝试重新入队
                     if await self._queue.requeue(msg):
                         self._stats["retried"] += 1
                     else:
                         self._stats["failed"] += 1
-            
+
             except asyncio.CancelledError:
                 break
             except Exception:
                 pass
-    
+
     def get_stats(self) -> Dict[str, Any]:
         """获取工作器统计"""
         return {

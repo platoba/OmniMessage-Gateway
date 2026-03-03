@@ -2,15 +2,14 @@
 Tests for Rate Limiter
 """
 
-import time
 import threading
-import pytest
+import time
 
 from gateway.rate_limiter import (
-    BucketConfig,
-    TokenBucket,
-    RateLimiter,
     DEFAULT_LIMITS,
+    BucketConfig,
+    RateLimiter,
+    TokenBucket,
 )
 
 

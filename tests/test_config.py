@@ -3,7 +3,6 @@ Tests for gateway.config - Configuration management
 """
 
 import os
-import pytest
 from unittest.mock import patch
 
 from gateway.config import (

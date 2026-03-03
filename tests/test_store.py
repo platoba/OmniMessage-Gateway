@@ -3,9 +3,10 @@ Tests for SQLite Message Store
 """
 
 import os
-import pytest
 import tempfile
 from datetime import datetime, timedelta
+
+import pytest
 
 from gateway.store import MessageStore
 

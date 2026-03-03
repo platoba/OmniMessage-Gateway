@@ -5,13 +5,13 @@ FastAPI 应用 - Webhook 接收端点 + REST API
 import logging
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException, Header, Request
+from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from gateway import __version__
-from gateway.core import Gateway
 from gateway.config import GatewayConfig
+from gateway.core import Gateway
 from gateway.models import ChannelType, Message, MessagePriority
 
 logger = logging.getLogger("omni.api")

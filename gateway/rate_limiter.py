@@ -5,8 +5,7 @@ Rate Limiter - 令牌桶限流 (per-channel)
 
 import threading
 import time
-from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 

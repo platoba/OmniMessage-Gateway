@@ -2,12 +2,13 @@
 Tests for gateway.core - Gateway core engine
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from gateway.config import GatewayConfig
 from gateway.core import Gateway
-from gateway.models import ChannelType, Message, MessagePriority, SendResult
+from gateway.models import ChannelType, Message
 
 
 @pytest.fixture

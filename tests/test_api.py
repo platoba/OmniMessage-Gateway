@@ -3,16 +3,17 @@ Tests for gateway.api - FastAPI REST endpoints
 """
 
 import os
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 # Set env before import
 os.environ["OMNI_API_KEY"] = "test-api-key"
 
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
+
 from gateway.api import create_app
 from gateway.config import GatewayConfig
-from gateway.models import ChannelType, SendResult
 
 
 @pytest.fixture

@@ -3,9 +3,9 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any
 
-from gateway.models import Message, SendResult, ChannelType
+from gateway.models import ChannelType, Message, SendResult
 
 
 class BaseChannel(ABC):

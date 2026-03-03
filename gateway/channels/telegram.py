@@ -2,7 +2,7 @@
 Telegram 渠道 - Bot API
 """
 
-from typing import Any, Optional
+from typing import Optional
 
 import httpx
 

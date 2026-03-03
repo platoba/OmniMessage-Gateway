@@ -4,11 +4,11 @@ Email 渠道 - SMTP
 
 import asyncio
 import smtplib
+from email import encoders
+from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
-from typing import Any, Optional
+from typing import Optional
 
 from gateway.channels import BaseChannel
 from gateway.config import EmailConfig

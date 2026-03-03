@@ -3,8 +3,9 @@ Tests for gateway.templates - Template engine
 """
 
 import os
-import pytest
 import tempfile
+
+import pytest
 
 from gateway.templates import TemplateEngine
 

@@ -4,11 +4,11 @@ Analytics Engine - 消息分析引擎
 """
 
 import json
-import time
 import threading
+import time
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 
 class AnalyticsCollector:

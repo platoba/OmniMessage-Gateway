@@ -3,8 +3,6 @@ Tests for Contact Manager
 """
 
 import json
-import os
-import tempfile
 
 import pytest
 

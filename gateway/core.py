@@ -6,6 +6,13 @@ Gateway Core - 网关核心引擎
 import logging
 from typing import Any, Dict, List, Optional
 
+from gateway.channels import BaseChannel
+from gateway.channels.discord import DiscordChannel
+from gateway.channels.email import EmailChannel
+from gateway.channels.slack import SlackChannel
+from gateway.channels.telegram import TelegramChannel
+from gateway.channels.webhook import WebhookChannel
+from gateway.channels.whatsapp import WhatsAppChannel
 from gateway.config import GatewayConfig
 from gateway.models import (
     ChannelType,
@@ -15,13 +22,6 @@ from gateway.models import (
 )
 from gateway.router import RoutingEngine, RoutingRule
 from gateway.templates import TemplateEngine
-from gateway.channels import BaseChannel
-from gateway.channels.telegram import TelegramChannel
-from gateway.channels.whatsapp import WhatsAppChannel
-from gateway.channels.discord import DiscordChannel
-from gateway.channels.slack import SlackChannel
-from gateway.channels.email import EmailChannel
-from gateway.channels.webhook import WebhookChannel
 
 logger = logging.getLogger("omni.core")
 

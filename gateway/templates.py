@@ -5,7 +5,7 @@
 import os
 from typing import Any, Dict, Optional
 
-from jinja2 import Environment, FileSystemLoader, BaseLoader, TemplateNotFound
+from jinja2 import BaseLoader, Environment, FileSystemLoader, TemplateNotFound
 
 
 class StringLoader(BaseLoader):

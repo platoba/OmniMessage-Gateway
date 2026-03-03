@@ -2,8 +2,8 @@
 Tests for Analytics Engine
 """
 
+
 import pytest
-import time
 
 from gateway.analytics import AnalyticsCollector, AnalyticsExporter
 

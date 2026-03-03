@@ -4,12 +4,11 @@ Channel Health Monitor - 渠道健康监控 + 自动故障转移 + SLA追踪
 
 import logging
 import threading
-import time
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional
 
 logger = logging.getLogger("omni.health")
 
